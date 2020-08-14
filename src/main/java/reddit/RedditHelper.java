@@ -23,7 +23,7 @@ public class RedditHelper {
             if (arg.toLowerCase().contains("time=")) {
                 timePeriod = handleTimePeriodArgument(arg);
             }
-            if(arg.toLowerCase().contains("posts=")) {
+            if (arg.toLowerCase().contains("posts=")) {
                 amountOfPosts = handleAmountOfPostsArgument(arg);
             }
         }
@@ -34,19 +34,46 @@ public class RedditHelper {
     }
 
     private DefaultPaginator<Submission> buildPaginator(String subreddit, SubredditSort subredditSort, int amountOfPosts, TimePeriod timePeriod) {
-        if(subredditSort == SubredditSort.HOT) {
-            DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                    .limit(amountOfPosts)
-                    .sorting(SubredditSort.HOT);
-            return paginatorBuilder.build();
-        } else if(subredditSort == SubredditSort.TOP) {
-            DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                    .limit(amountOfPosts) // 50 posts per page
-                    .sorting(SubredditSort.TOP) // top posts
-                    .timePeriod(timePeriod); // of all time
-            return paginatorBuilder.build();
+
+        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = null;
+
+        switch (subredditSort) {
+            case BEST:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.BEST)
+                        .timePeriod(timePeriod);
+                break;
+            case NEW:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.NEW);
+                break;
+            case RISING:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.RISING);
+                break;
+            case CONTROVERSIAL:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.CONTROVERSIAL)
+                        .timePeriod(timePeriod);
+                break;
+            case HOT:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.HOT);
+                break;
+            case TOP:
+                paginatorBuilder = this.client.subreddit(subreddit).posts()
+                        .limit(amountOfPosts)
+                        .sorting(SubredditSort.TOP)
+                        .timePeriod(timePeriod);
+                break;
         }
-        return null;
+
+        return paginatorBuilder.build();
     }
 
     private TimePeriod handleTimePeriodArgument(String arg) {

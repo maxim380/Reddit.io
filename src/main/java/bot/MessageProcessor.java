@@ -69,10 +69,24 @@ public class MessageProcessor {
             case "top":
                 this.getTopPost(event.getMessageContent(), event.getChannel());
                 break;
+            case "new":
+                this.getNewPost(event.getMessageContent(), event.getChannel());
+                break;
+            case "controversial":
+                this.getControversialPost(event.getMessageContent(), event.getChannel());
+                break;
+            case "best":
+                this.getBestPost(event.getMessageContent(), event.getChannel());
+                break;
+            case "rising":
+                this.getRisingPost(event.getMessageContent(), event.getChannel());
+                break;
             default:
                 sendMessage("Unknown command", event.getChannel());
         }
     }
+    //TODO refactor this
+    //region get post based on sorting
 
     private void getTopPost(String message, TextChannel channel) {
         String subreddit = message.split(" ")[1];
@@ -89,6 +103,39 @@ public class MessageProcessor {
         Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.HOT, args);
         this.sendRedditPostToChannel(post, channel);
     }
+
+    private void getNewPost(String message, TextChannel channel) {
+        String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
+
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.NEW, args);
+        this.sendRedditPostToChannel(post, channel);
+    }
+
+    private void getControversialPost(String message, TextChannel channel) {
+        String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
+
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.CONTROVERSIAL, args);
+        this.sendRedditPostToChannel(post, channel);
+    }
+
+    private void getRisingPost(String message, TextChannel channel) {
+        String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
+
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.RISING, args);
+        this.sendRedditPostToChannel(post, channel);
+    }
+
+    private void getBestPost(String message, TextChannel channel) {
+        String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
+
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.BEST, args);
+        this.sendRedditPostToChannel(post, channel);
+    }
+    //endregion
 
     private void sendRedditPostToChannel(Submission post, TextChannel channel) {
         EmbedBuilder embed = this.generateEmbed(post);
