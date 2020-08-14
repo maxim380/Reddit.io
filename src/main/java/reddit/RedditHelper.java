@@ -16,11 +16,22 @@ public class RedditHelper {
         this.client = RedditAuthenticator.getInstance().authenticate();
     }
 
-    public Submission getRandomTopPostFromSub(String subreddit) {
+    public Submission getRandomTopPostFromSub(String subreddit, String[] args) {
+        TimePeriod timePeriod = TimePeriod.ALL;
+        int amountOfPosts = 50;
+        for (String arg : args) {
+            if (arg.toLowerCase().contains("time=")) {
+                timePeriod = handleTimePeriodArgument(arg);
+            }
+            if(arg.toLowerCase().contains("posts=")) {
+                amountOfPosts = handleAmountOfPostsArgument(arg);
+            }
+        }
+
         DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                .limit(50) // 50 posts per page
+                .limit(amountOfPosts) // 50 posts per page
                 .sorting(SubredditSort.TOP) // top posts
-                .timePeriod(TimePeriod.ALL); // of all time
+                .timePeriod(timePeriod); // of all time
         DefaultPaginator<Submission> paginator = paginatorBuilder.build();
 
         Listing<Submission> firstPage = paginator.next();
@@ -28,14 +39,50 @@ public class RedditHelper {
         return firstPage.get(index);
     }
 
-    public Submission getRandomHotPostFromSub(String subreddit) {
+    public Submission getRandomHotPostFromSub(String subreddit, String args[]) {
+        int amountOfPosts = 50;
+        for (String arg : args) {
+            if(arg.toLowerCase().contains("posts=")) {
+                amountOfPosts = handleAmountOfPostsArgument(arg);
+            }
+        }
+
         DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                .limit(50)
+                .limit(amountOfPosts)
                 .sorting(SubredditSort.HOT);
         DefaultPaginator<Submission> paginator = paginatorBuilder.build();
 
         Listing<Submission> firstPage = paginator.next();
         int index = random.nextInt(firstPage.size());
         return firstPage.get(index);
+    }
+
+    private TimePeriod handleTimePeriodArgument(String arg) {
+        arg = arg.toLowerCase().replace("time=", "");
+        switch (arg) {
+            case "hour":
+                return TimePeriod.HOUR;
+            case "day":
+                return TimePeriod.DAY;
+            case "week":
+                return TimePeriod.WEEK;
+            case "month":
+                return TimePeriod.MONTH;
+            case "year":
+                return TimePeriod.YEAR;
+            default:
+                return TimePeriod.ALL;
+        }
+    }
+
+
+    private int handleAmountOfPostsArgument(String arg) {
+        arg = arg.toLowerCase().replace("posts=", "");
+        try {
+            return Integer.parseInt(arg);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 50;
+        }
     }
 }

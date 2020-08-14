@@ -74,17 +74,19 @@ public class MessageProcessor {
         }
     }
 
-    private void getTopPost(String message, TextChannel channel) throws MalformedURLException {
+    private void getTopPost(String message, TextChannel channel) {
         String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
 
-        Submission post = this.reddit.getRandomTopPostFromSub(subreddit);
+        Submission post = this.reddit.getRandomTopPostFromSub(subreddit, args);
         this.sendRedditPostToChannel(post, channel);
     }
 
     private void getHotPost(String message, TextChannel channel) {
         String subreddit = message.split(" ")[1];
+        String[] args = message.split("--");
 
-        Submission post = this.reddit.getRandomHotPostFromSub(subreddit);
+        Submission post = this.reddit.getRandomHotPostFromSub(subreddit, args);
         this.sendRedditPostToChannel(post, channel);
     }
 
