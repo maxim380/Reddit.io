@@ -1,7 +1,7 @@
 package bot;
 
-import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.SubredditSort;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -78,7 +78,7 @@ public class MessageProcessor {
         String subreddit = message.split(" ")[1];
         String[] args = message.split("--");
 
-        Submission post = this.reddit.getRandomTopPostFromSub(subreddit, args);
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.TOP,args);
         this.sendRedditPostToChannel(post, channel);
     }
 
@@ -86,7 +86,7 @@ public class MessageProcessor {
         String subreddit = message.split(" ")[1];
         String[] args = message.split("--");
 
-        Submission post = this.reddit.getRandomHotPostFromSub(subreddit, args);
+        Submission post = this.reddit.getRandomPostFromSub(subreddit, SubredditSort.HOT, args);
         this.sendRedditPostToChannel(post, channel);
     }
 

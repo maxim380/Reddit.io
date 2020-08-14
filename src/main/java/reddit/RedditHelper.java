@@ -16,7 +16,7 @@ public class RedditHelper {
         this.client = RedditAuthenticator.getInstance().authenticate();
     }
 
-    public Submission getRandomTopPostFromSub(String subreddit, String[] args) {
+    public Submission getRandomPostFromSub(String subreddit, SubredditSort subredditSort, String[] args) {
         TimePeriod timePeriod = TimePeriod.ALL;
         int amountOfPosts = 50;
         for (String arg : args) {
@@ -27,34 +27,26 @@ public class RedditHelper {
                 amountOfPosts = handleAmountOfPostsArgument(arg);
             }
         }
-
-        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                .limit(amountOfPosts) // 50 posts per page
-                .sorting(SubredditSort.TOP) // top posts
-                .timePeriod(timePeriod); // of all time
-        DefaultPaginator<Submission> paginator = paginatorBuilder.build();
-
+        DefaultPaginator<Submission> paginator = buildPaginator(subreddit, subredditSort, amountOfPosts, timePeriod);
         Listing<Submission> firstPage = paginator.next();
         int index = random.nextInt(firstPage.size());
         return firstPage.get(index);
     }
 
-    public Submission getRandomHotPostFromSub(String subreddit, String args[]) {
-        int amountOfPosts = 50;
-        for (String arg : args) {
-            if(arg.toLowerCase().contains("posts=")) {
-                amountOfPosts = handleAmountOfPostsArgument(arg);
-            }
+    private DefaultPaginator<Submission> buildPaginator(String subreddit, SubredditSort subredditSort, int amountOfPosts, TimePeriod timePeriod) {
+        if(subredditSort == SubredditSort.HOT) {
+            DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
+                    .limit(amountOfPosts)
+                    .sorting(SubredditSort.HOT);
+            return paginatorBuilder.build();
+        } else if(subredditSort == SubredditSort.TOP) {
+            DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
+                    .limit(amountOfPosts) // 50 posts per page
+                    .sorting(SubredditSort.TOP) // top posts
+                    .timePeriod(timePeriod); // of all time
+            return paginatorBuilder.build();
         }
-
-        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = this.client.subreddit(subreddit).posts()
-                .limit(amountOfPosts)
-                .sorting(SubredditSort.HOT);
-        DefaultPaginator<Submission> paginator = paginatorBuilder.build();
-
-        Listing<Submission> firstPage = paginator.next();
-        int index = random.nextInt(firstPage.size());
-        return firstPage.get(index);
+        return null;
     }
 
     private TimePeriod handleTimePeriodArgument(String arg) {
@@ -74,7 +66,6 @@ public class RedditHelper {
                 return TimePeriod.ALL;
         }
     }
-
 
     private int handleAmountOfPostsArgument(String arg) {
         arg = arg.toLowerCase().replace("posts=", "");
