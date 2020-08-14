@@ -153,6 +153,7 @@ public class MessageProcessor {
                 embed.setDescription(post.getPreview().toString());
             }
             embed.setDescription(post.getUrl());
+            embed.setDescription(":thumbsup:" + post.getScore());
             return embed;
         }
 
@@ -164,6 +165,8 @@ public class MessageProcessor {
         } else {
             embed.setColor(Color.GREEN);
         }
+        embed.setDescription(":thumbsup: " + post.getScore());
+
         return embed;
     }
 
