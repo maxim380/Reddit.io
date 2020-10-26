@@ -19,3 +19,14 @@ Reddit.io can then be started via the 'RedditDiscordBot-1.0-SNAPSHOT-jar-with-de
 ```bash
 java -jar RedditDiscordBot-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
+
+## Usage
+The bot will display an invite link that you can use to invite it to your server. It can then be used using the ```r!``` prefix.
+
+## Commands
+Reddit.io supports all sorting and time-filter options from reddit. The format for the commands is ```r!sort subreddit timePeriod```.
+```
+r!hot memes
+r!controversial unpopularopinion
+r!top funny month
+```
