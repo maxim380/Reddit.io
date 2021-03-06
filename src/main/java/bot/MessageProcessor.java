@@ -56,7 +56,7 @@ public class MessageProcessor {
         }
     }
 
-    public void processCommand(MessageCreateEvent event) throws MalformedURLException {
+    public void processCommand(MessageCreateEvent event) {
         String command = event.getMessageContent().split(" ")[0].replace("r!","");
         System.out.println(command);
         switch (command) {
@@ -81,12 +81,27 @@ public class MessageProcessor {
             case "rising":
                 this.getRisingPost(event.getMessageContent(), event.getChannel());
                 break;
+            case "search":
+                this.searchPost(event.getMessageContent(), event.getChannel());
+                break;
             default:
                 sendMessage("Unknown command", event.getChannel());
         }
     }
+
     //TODO refactor this
     //region get post based on sorting
+
+    private void searchPost(String message, TextChannel channel) {
+        String[] splitMessage = message.split(" ");
+        String subreddit = splitMessage[1];
+        StringBuilder searchTermBuilder = new StringBuilder();
+        for(int i = 2; i < splitMessage.length; i++) {
+            searchTermBuilder.append(splitMessage[i]);
+        }
+        Submission post = this.reddit.searchPostOnSub(subreddit, searchTermBuilder.toString());
+        this.sendRedditPostToChannel(post, channel);
+    }
 
     private void getTopPost(String message, TextChannel channel) {
         String subreddit = message.split(" ")[1];
@@ -138,11 +153,30 @@ public class MessageProcessor {
     //endregion
 
     private void sendRedditPostToChannel(Submission post, TextChannel channel) {
-        EmbedBuilder embed = this.generateEmbed(post);
+        if(post.isNsfw() && !channel.asServerTextChannel().get().isNsfw()) {
+            sendIsNsfwMessage(channel);
+            return;
+        }
 
-        new MessageBuilder()
-                .setEmbed(embed)
-                .send(channel);
+        if(!post.getUrl().contains("youtu")) {
+            EmbedBuilder embed = this.generateEmbed(post);
+            new MessageBuilder()
+                    .setEmbed(embed)
+                    .send(channel);
+        } else {
+            //TODO place this in it's own method
+            new MessageBuilder()
+//                    .setEmbed(new EmbedBuilder()
+//                        .setTitle(post.getTitle())
+//                        .setDescription(":thumbsup: " + post.getScore()))
+                    .append(post.getUrl())
+                    .send(channel);
+        }
+    }
+
+    private void sendIsNsfwMessage(TextChannel channel) {
+        String message = "This content is NSFW, but this channel is not";
+        channel.sendMessage(message);
     }
 
     private EmbedBuilder generateEmbed(Submission post) {
